@@ -61,6 +61,9 @@ import io.flutter.plugin.common.MethodChannel.MethodCallHandler;
 import io.flutter.plugin.common.MethodChannel.Result;
 import io.flutter.plugin.common.PluginRegistry.RequestPermissionsResultListener;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 public class FlutterBluePlusPlugin implements FlutterPlugin, MethodCallHandler, RequestPermissionsResultListener, ActivityAware {
 
   private static final String TAG = "FlutterBluePlugin";
@@ -847,6 +850,7 @@ public class FlutterBluePlusPlugin implements FlutterPlugin, MethodCallHandler, 
 
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
+
           super.onScanResult(callbackType, result);
           if(result != null){
             if (!allowDuplicates && result.getDevice() != null && result.getDevice().getAddress() != null) {
@@ -877,12 +881,19 @@ public class FlutterBluePlusPlugin implements FlutterPlugin, MethodCallHandler, 
 
   @TargetApi(21)
   private void startScan21(Protos.ScanSettings proto) throws IllegalStateException {
+    List<ScanFilter> listFilter = new ArrayList();
+
+    ScanFilter.Builder builder = new ScanFilter.Builder();
+    builder.setManufacturerData(0x004c, new byte[] {});
+    ScanFilter filter = builder.build();
+    listFilter.add(filter);
+
     BluetoothLeScanner scanner = mBluetoothAdapter.getBluetoothLeScanner();
     if(scanner == null) throw new IllegalStateException("getBluetoothLeScanner() is null. Is the Adapter on?");
     int scanMode = proto.getAndroidScanMode();
     List<ScanFilter> filters = fetchFilters(proto);
     ScanSettings settings = new ScanSettings.Builder().setScanMode(scanMode).build();
-    scanner.startScan(filters, settings, getScanCallback21());
+    scanner.startScan(listFilter, settings, getScanCallback21());
   }
 
   @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)

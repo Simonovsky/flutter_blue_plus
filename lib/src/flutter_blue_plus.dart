@@ -6,11 +6,11 @@ part of flutter_blue_plus;
 
 class FlutterBluePlus {
   final MethodChannel _channel =
-      const MethodChannel('flutter_blue_plus/methods');
+  const MethodChannel('flutter_blue_plus/methods');
   final EventChannel _stateChannel =
-      const EventChannel('flutter_blue_plus/state');
+  const EventChannel('flutter_blue_plus/state');
   final StreamController<MethodCall> _methodStreamController =
-      StreamController.broadcast(); // ignore: close_sinks
+  StreamController.broadcast(); // ignore: close_sinks
   Stream<MethodCall> get _methodStream => _methodStreamController
       .stream; // Used internally to dispatch methods from platform.
 
@@ -73,7 +73,7 @@ class FlutterBluePlus {
   Stream<bool> get isScanning => _isScanning.stream;
 
   final BehaviorSubject<List<ScanResult>> _scanResults =
-      BehaviorSubject.seeded([]);
+  BehaviorSubject.seeded([]);
 
   /// Returns a stream that is a list of [ScanResult] results while a scan is in progress.
   ///
@@ -175,11 +175,8 @@ class FlutterBluePlus {
         .map((buffer) => protos.ScanResult.fromBuffer(buffer))
         .map((p) {
       final result = ScanResult.fromProto(p);
-      final list = _scanResults.value;
-      int index = list.indexOf(result);
-      if (index != -1) {
-        list[index] = result;
-      } else {
+      final list = <ScanResult>[];
+      if(!list.contains(result)) {
         list.add(result);
       }
       _scanResults.add(list);
@@ -204,12 +201,12 @@ class FlutterBluePlus {
     bool allowDuplicates = false,
   }) async {
     await scan(
-            scanMode: scanMode,
-            withServices: withServices,
-            withDevices: withDevices,
-            macAddresses: macAddresses,
-            timeout: timeout,
-            allowDuplicates: allowDuplicates)
+        scanMode: scanMode,
+        withServices: withServices,
+        withDevices: withDevices,
+        macAddresses: macAddresses,
+        timeout: timeout,
+        allowDuplicates: allowDuplicates)
         .drain();
     return _scanResults.value;
   }
@@ -303,14 +300,14 @@ class ScanResult {
   final BluetoothDevice device;
   final AdvertisementData advertisementData;
   final int rssi;
-  final DateTime timeStamp;
+  DateTime timeStamp;
 
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is ScanResult &&
-          runtimeType == other.runtimeType &&
-          device == other.device;
+          other is ScanResult &&
+              runtimeType == other.runtimeType &&
+              device == other.device;
 
   @override
   int get hashCode => device.hashCode;
@@ -332,7 +329,7 @@ class AdvertisementData {
   AdvertisementData.fromProto(protos.AdvertisementData p)
       : localName = p.localName,
         txPowerLevel =
-            (p.txPowerLevel.hasValue()) ? p.txPowerLevel.value : null,
+        (p.txPowerLevel.hasValue()) ? p.txPowerLevel.value : null,
         connectable = p.connectable,
         manufacturerData = p.manufacturerData,
         serviceData = p.serviceData,
